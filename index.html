@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        html,body{
+            height: 100%;
+        }
+        a{
+            text-decoration: none;
+        }
+        .box{
+            text-align: center;
+        }
+        img {
+            width: 1024px;
+            height:640px;
+        }
+        .btn{
+            display: inline-block;
+            height: 30px;
+            line-height: 30px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            padding: 0 10px;
+            margin-right: 50px;
+            color: #333;
+        }
+        .btn:hover{
+            background-color: #eee;
+        }
+        .btn:disabled {
+            color: red;
+            border: 1px solid red;
+        }
+        .loading{
+            position: fixed;
+            top:0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #eee;
+            text-align: center;
+            font-size: 30px;
+        }
+        .progress{
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-top: -20px;
+            margin-left: -23px;
+        }
+    </style>
+</head>
+<body>
+<div class="box">
+    <img src="https://timgsa.baidu.com/timg?image&quality80&sizeb9999_10000&sec1536779145193&di88f99c68903b47c4e386755b73893335&imgtype0&srchttp%3A%2F%2Fimg.pconline.com.cn%2Fimages%2Fupload%2Fupc%2Ftx%2Fwallpaper%2F1212%2F21%2Fc2%2F16781720_1356079420979.jpg"
+         alt="" id="img">
+    <p id="parent">
+        <input type="button" class="btn" value="上一页" data-control="prev" />
+        <input type="button" class="btn" value="下一页" data-control="next" />
+    </p>
+</div>
+<!--加载-->
+<div class="loading">
+    <p class="progress">0%</p>
+</div>
+<script>
+    var img = document.querySelector('#img')
+    var p = document.querySelector('#parent')
+    var btn = document.querySelectorAll('.btn')
+    var progress = document.querySelector('.progress')
+    var loading = document.querySelector('.loading')
+    var imgs = [
+        "https://timgsa.baidu.com/timg?image&quality80&sizeb9999_10000&sec1536779145193&di88f99c68903b47c4e386755b73893335&imgtype0&srchttp%3A%2F%2Fimg.pconline.com.cn%2Fimages%2Fupload%2Fupc%2Ftx%2Fwallpaper%2F1212%2F21%2Fc2%2F16781720_1356079420979.jpg",
+        "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1536779184701&di=f3ab80235c5ddf5adb9d6b06ce47e82c&imgtype=0&src=http%3A%2F%2Fattachments.gfan.com%2Fforum%2Fattachments2%2Fday_110730%2F110730052814920f360299a915.jpg",
+        "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1536779211730&di=4c244c8bd60f74b1832625e27c063fc0&imgtype=0&src=http%3A%2F%2Fi3.download.fd.pchome.net%2Ft_960x600%2Fg1%2FM00%2F09%2F12%2FoYYBAFO6NYCIE0tSAAdYOvon7RoAABtkwF4hgIAB1hS650.jpg",
+        "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1536779225935&di=4c13b2276bbe03877d4c5ea0cc56cc98&imgtype=0&src=http%3A%2F%2Fc15.eoemarket.net%2Fapp0%2F652%2F652549%2Fscreen%2F3260012.png",
+        "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1536779271901&di=3ccda1af260cf969189de3f52ea31686&imgtype=0&src=http%3A%2F%2Fpic1.ytqmx.com%3A82%2F2015%2F0526%2F14%2F02.jpg%2521720.jpg",
+        "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1536779311038&di=0599243d4fe87313ed37ee416cd73d6a&imgtype=0&src=http%3A%2F%2Fwww.desktx.cc%2Fd%2Ffile%2Fwallpaper%2Fscenery%2F20170105%2F2647448be73294d17c28d91407661f8c.jpg",
+        "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1536779320074&di=ec9d10c18c21daec3b89b5573c22ef0f&imgtype=0&src=http%3A%2F%2Fpicture.ik123.com%2Fuploads%2Fallimg%2F170320%2F3-1F320150H5.jpg",
+        "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1536779349967&di=11eaaee20a3da68abf58938bdad012e0&imgtype=0&src=http%3A%2F%2Fpic1.win4000.com%2Fwallpaper%2F2017-11-29%2F5a1e13119deee.jpg"
+    ]
+    var index = 0, // 当前是哪张图片
+        len = imgs.length,
+        count = 0 // 加载了多少图片
+
+
+    function btnListener() { // 按钮事件监听
+        p.addEventListener('click', function (e) {
+            if (e.target.dataset.control === 'prev') {
+                /*index--
+                if (index < 0) {
+                    index = 0
+                }*/
+                index = Math.max(0, --index)
+            } else {
+                index = Math.min(++index, len - 1)
+            }
+            document.title = (index + 1) + '/' + len; // 改变页面标题
+            disabled()
+            img.setAttribute('src', imgs[index])
+        })
+    }
+
+
+    function disabled() { //  按钮样式变化
+        if (index === 0) {
+            btn[0].disabled = 'disabled'
+            btn[0].value = '没有啦'
+        } else if (index === len - 1) {
+            btn[1].disabled = 'disabled'
+            btn[1].value = '没有啦'
+        } else {
+            btn[0].removeAttribute('disabled')
+            btn[0].value = '上一页'
+            btn[1].removeAttribute('disabled')
+            btn[1].value = '下一页'
+        }
+    }
+
+    function preLoad() { //  预加载
+        imgs.forEach(function (item, index) {
+            var imgObj = new Image()
+            imgObj.addEventListener('load', function (e) {
+                progress.innerHTML = Math.round((count + 1) / len * 100) + '%'
+                if (count >= len - 1) {
+                    loading.style.display = 'none'
+                    document.title = '1/' + len
+                }
+                count++
+            })
+            imgObj.src = item
+        })
+    }
+
+    window.onload = function () {
+        disabled()
+        btnListener()
+        preLoad()
+    }
+
+</script>
+</body>
+</html>
